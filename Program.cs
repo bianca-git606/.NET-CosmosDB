@@ -4,7 +4,7 @@ using Microsoft.Azure.Cosmos.Linq;
 
 static CosmosClient GetClient() {
 
-    const string connectionString = "AccountEndpoint=https://mslearn-15128244.documents.azure.com:443/;AccountKey=JaLiAGXSehdAWROzDETIp8qWwpwrPdoDDq8n7XhYaJ6pdWXJEbT05rZkYCELYjNYrlOjGB5osuIbACDbq6PlJg==;";
+    const string connectionString = "<Account Endpoint> <AccountKey>";
 
     Console.WriteLine($"[Connection string]:\t{connectionString}");
 
