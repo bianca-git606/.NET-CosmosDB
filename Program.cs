@@ -21,6 +21,9 @@ static CosmosClient GetClient() {
     return output;
 }
 
+
+using CosmosClient client = GetClient();
+
 async Task<Container> CreateResourcesAsync() {
     Database database = await client.CreateDatabaseIfNotExistsAsync(
         id: "cosmicworks"
@@ -38,5 +41,4 @@ async Task<Container> CreateResourcesAsync() {
     return output;
 }
 
-using CosmosClient client = GetClient();
 Container container = await CreateResourcesAsync();
