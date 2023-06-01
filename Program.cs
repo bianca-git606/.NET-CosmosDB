@@ -139,13 +139,15 @@ await CreateItemBatchAsync();
 
 async Task PointReadAsync() {
 
-    PartitionKey readKey = new("gearl-climn-helmets");
+    PartitionKey readKey = new("gear-climb-helmets");
+
     ItemResponse<Category> readResponse = await container.ReadItemAsync<Category>(
         id: "91f79374-8611-4505-9c28-3bbbf1aa7df7",
         partitionKey: readKey
     );
 
     Category readItem = readResponse.Resource;
+
     Console.WriteLine($"[Point read item]:\t{readItem.Id}\t(RUs: {readResponse.RequestCharge})");  
 }
 
@@ -154,28 +156,34 @@ await PointReadAsync();
 async Task QueryAsync() {
 
     // Execute a query
-    string statement = "SELECT * FROM products AS p WHERE p.categoryId = @partitionKey";
+    string statement = "SELECT * FROM products p WHERE p.categoryId = @partitionKey";
+
     var query = new QueryDefinition(
         query: statement
     );
 
     var parameterizedQuery = query.WithParameter("@partitionKey", "gear-camp-tents");
+
     using FeedIterator<Product> feed = container.GetItemQueryIterator<Product>(
         queryDefinition: parameterizedQuery
     );
 
     Console.WriteLine($"[Start query]:\t{statement}");
 
-    // Paginate query results
     double totalRequestCharge = 0d;
-    while (feed.HasMoreResults) {
+
+    while (feed.HasMoreResults)
+    {
         FeedResponse<Product> page = await feed.ReadNextAsync();
+
         totalRequestCharge += page.RequestCharge;
 
-        foreach(Product item in page) {
+        foreach (Product item in page)
+        {
             Console.WriteLine($"[Returned item]:\t{item.Id}\t(Name: {item.Name ?? "N/A"})");
         }
     }
+
     Console.WriteLine($"[Query metrics]:\t(RUs: {totalRequestCharge})");
 }
 
