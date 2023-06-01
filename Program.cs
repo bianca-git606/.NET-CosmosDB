@@ -1,5 +1,6 @@
 ﻿using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Fluent;
+using Microsoft.Azure.Cosmos.Linq;
 
 static CosmosClient GetClient() {
 
@@ -152,6 +153,7 @@ await PointReadAsync();
 
 async Task QueryAsync() {
 
+    // Execute a query
     string statement = "SELECT * FROM products AS p WHERE p.categoryId = @partitionKey";
     var query = new QueryDefinition(
         query: statement
@@ -164,7 +166,7 @@ async Task QueryAsync() {
 
     Console.WriteLine($"[Start query]:\t{statement}");
 
-    //Paginate query results
+    // Paginate query results
     double totalRequestCharge = 0d;
     while (feed.HasMoreResults) {
         FeedResponse<Product> page = await feed.ReadNextAsync();
@@ -178,3 +180,27 @@ async Task QueryAsync() {
 }
 
 await QueryAsync();
+
+async Task QueryLINQAsync() {
+
+    // Query using LINQ expressions
+    IOrderedQueryable<Product> queryable = container.GetItemLinqQueryable<Product>();
+    var matches = queryable
+    .Where(p => p.Type == nameof(Product))
+    .Where(p => !p.Archived)
+    .OrderBy(p => p.Price);
+
+    using FeedIterator<Product> linqFeed = matches.ToFeedIterator();
+    Console.WriteLine($"[Start LINQ query]");
+
+    // Paginate LINQ query results
+    while (linqFeed.HasMoreResults){
+        FeedResponse<Product> page = await linqFeed.ReadNextAsync();
+        Console.WriteLine($"[Page RU charge]:\t{page.RequestCharge}");
+        foreach(Product item in page) {
+            Console.WriteLine($"[Returned item]:\t{item}");
+        }
+    }
+}
+
+await QueryLINQAsync();
